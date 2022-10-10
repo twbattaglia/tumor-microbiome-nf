@@ -1,0 +1,14 @@
+name: env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - cutadapt=2.10
+  - fastqc=0.11.9
+  - picard=2.22.1
+  - pip=20.0.2
+  - python
+  - samtools=1.10
+  - fastp=0.20.1
+  - pyega3

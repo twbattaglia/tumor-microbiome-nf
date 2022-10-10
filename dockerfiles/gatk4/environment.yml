@@ -1,0 +1,11 @@
+name: gatk
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - gatk4=4.1.4.1
+  - bwa
+  - picard
+  - samtools
+  
