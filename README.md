@@ -24,6 +24,8 @@ nextflow run NKI-atlas-nf/main.nf \
 ### BAM/CRAM files
 The required input file is a CSV flat file with the locations of BAM/CRAM files that will be processed. Data can be located locally or on GCP. The expected input of the data should be BAM/CRAM files that have been mapped to the human genome (hg19) and have retained all reads.
 
+### Reference databases
+A formatted database for Pathseq and Kraken2 are additionally required for profiling the unmapped whole genome sequences. These databases will be available after publication.
 
 ## Parameters
 
