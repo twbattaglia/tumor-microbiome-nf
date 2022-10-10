@@ -7,7 +7,7 @@ This repository contains the code pertinent to our publication. Please refer to 
 >Thomas W. Battaglia, Joris van de Haar, Iris Mimpen, Birgit Geurts, Laurien Zeverijn, Gijs de Wit, Arne van Hoeck, Edwin Cuppen, Lodewyk Wessels and Emile Voest, The microbiome in metastatic cancer: composition, biology and dynamics, __Cell__ (Submitted)
 
 ## Installation
-The pipeline can be install by pulling the repo (below) or by using the command: `nextflow run twbattaglia/amplicon-nf`
+The pipeline can be install by pulling the repo (below) or by using the command: `nextflow run twbattaglia/NKI-atlas-nf`
 ```
 git clone https://github.com/twbattaglia/NKI-atlas-nf
 ```
