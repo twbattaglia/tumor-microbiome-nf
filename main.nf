@@ -23,8 +23,8 @@ def helpMessage() {
 
     Optional arguments:
       --bam [file]                          File path to the folder with CRAM/BAM files reads for processing. Can be used instead of CSV input.
-      --outdir_gcp [file]                   Directory to resulting folder, must have permissions on bucket (Default: gs://nki-atlas/results)
-      --outdir_local [file]                 Directory to resulting folder on local computer (Default: results/)
+      --outdir [folder]                     Directory to resulting folder, must have permissions on bucket (Default: gs://nki-atlas/results)
+      --blood [bool]                        Option to profile blood instead of tumor (Default: false)
 
     Quality filtering options:
       --min_length [int]                    Minimum sequence length when quality filtering (Default: 50)
@@ -62,11 +62,20 @@ if (params.print) {
       .map{ row-> tuple(row.sampleId, file(row.Tumor)) }
       .println()
   } else {
-    Channel
-      .fromPath(params.csv)
-      .splitCsv(header:true)
-      .map{ row-> tuple(row.sampleId, file(row.Tumor)) }
-      .set { file_inputs }
+    if(params.blood) {
+      Channel
+        .fromPath(params.csv)
+        .splitCsv(header:true)
+        .map{ row-> tuple(row.sampleId, file(row.Normal)) }
+        .set { file_inputs }
+    } else {
+      Channel
+        .fromPath(params.csv)
+        .splitCsv(header:true)
+        .map{ row-> tuple(row.sampleId, file(row.Tumor)) }
+        .set { file_inputs }
+    }
+    
 }
 
 // Slice out reads that have been aligned (CRAM format)
@@ -75,6 +84,7 @@ if (params.print) {
 process preprocess {
   publishDir "$params.outdir/${sample_id}/quality_filter", mode: 'copy', pattern: '*.txt'
   publishDir "$params.outdir/${sample_id}/quality_filter", mode: 'copy', pattern: '*.{html, zip}'
+  publishDir "gs://nki-atlas/atlas-results/${sample_id}/quality_filter", mode: 'copy', pattern: '*-trim-R{1,2}.fq.gz'
 
   input:
     set sample_id, file(reads) from file_inputs
@@ -152,12 +162,15 @@ process kraken2 {
     path index from params.krakenDB
 
   output:
-    file("${sample_id}-output.txt.gz") optional true into output
-    file("${sample_id}-report.txt") optional true into report
-    file("${sample_id}-report-mpa.txt") optional true into mpa_report
-    file("${sample_id}-bracken-species.txt") optional true into species
-    file("${sample_id}-bracken-genus.txt") optional true into genus
-    file("${sample_id}-map-genus-R{1,2}.fq.gz") optional true into mapped_genus
+    //file("${sample_id}-output.txt.gz") optional true into output
+    file("${sample_id}-report.txt") into report
+    //file("${sample_id}-report-mpa.txt") optional true into mpa_report
+    file("${sample_id}-bracken-species.txt") into species
+    file("${sample_id}-bracken-genus.txt") into genus
+    //file("${sample_id}-map-genus-R{1,2}.fq.gz") optional true into mapped_genus
+
+  when:
+    params.skip_kraken2 == false
 
   script:
     """
@@ -174,10 +187,10 @@ process kraken2 {
     ${reads[1]}
 
     # Convert to metaphlan2 output
-    kreport2mpa.py \
-    --report-file ${sample_id}-report.txt \
-    --output ${sample_id}-report-mpa.txt \
-    --no-intermediate-ranks
+    #kreport2mpa.py \
+    #--report-file ${sample_id}-report.txt \
+    #--output ${sample_id}-report-mpa.txt \
+    #--no-intermediate-ranks
 
     # Run bracken to re-estimate @ the species level
     est_abundance.py \
@@ -195,26 +208,10 @@ process kraken2 {
     -l 'G' \
     -t ${params.min_counts}
 
-    # Get a list of the detected TaxID's
-    genus_id=\$(cat ${sample_id}-bracken-genus.txt | tr ' ' '_' | awk 'FNR == 1 {next} { print \$2 }' | tr '\n' ' ')
-    species_id=\$(cat ${sample_id}-bracken-species.txt | tr ' ' '_' | awk 'FNR == 1 {next} { print \$2 }' | tr '\n' ' ')
-
-    # Extract classified reads (Genus-level)
-    extract_kraken_reads.py \
-    -k ${sample_id}-output.txt \
-    -r ${sample_id}-report.txt \
-    -s1 ${reads[0]} \
-    -s2 ${reads[1]} \
-    -o ${sample_id}-map-genus-R1.fq \
-    -o2 ${sample_id}-map-genus-R2.fq \
-    --fastq-output \
-    --include-children \
-    --taxid \$genus_id
-
     # Compress large files
-    gzip ${sample_id}-map-genus-R1.fq
-    gzip ${sample_id}-map-genus-R2.fq
-    gzip ${sample_id}-output.txt
+    #gzip ${sample_id}-map-genus-R1.fq
+    #gzip ${sample_id}-map-genus-R2.fq
+    #gzip ${sample_id}-output.txt
     """
 }
 
@@ -232,13 +229,16 @@ process pathseq {
     file("${sample_id}-metrics.txt") optional true into pathseq_metrics
     file("${sample_id}-score-metrics.txt") optional true into pathseq_scores_metrics
 
+  when:
+    params.skip_pathseq == false
+
   script:
     """
     # Make temporary folder
     mkdir -p tmp/
 
     # Run PathSeq
-    gatk --java-options '-Xmx104G -XX:+UseParallelGC' \
+    gatk --java-options '-Xmx104G -XX:ParallelGCThreads=6' \
     PathSeqPipelineSpark \
     --input ${reads} \
     --output ${sample_id}-pathseq.bam \
