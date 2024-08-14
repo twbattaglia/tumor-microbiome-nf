@@ -162,12 +162,12 @@ process kraken2 {
     path index from params.krakenDB
 
   output:
-    //file("${sample_id}-output.txt.gz") optional true into output
+    file("${sample_id}-output.txt.gz") optional true into output
     file("${sample_id}-report.txt") into report
-    //file("${sample_id}-report-mpa.txt") optional true into mpa_report
+    file("${sample_id}-report-mpa.txt") optional true into mpa_report
     file("${sample_id}-bracken-species.txt") into species
     file("${sample_id}-bracken-genus.txt") into genus
-    //file("${sample_id}-map-genus-R{1,2}.fq.gz") optional true into mapped_genus
+    file("${sample_id}-map-genus-R{1,2}.fq.gz") optional true into mapped_genus
 
   when:
     params.skip_kraken2 == false
