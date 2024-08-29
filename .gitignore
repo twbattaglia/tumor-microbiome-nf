@@ -1,5 +1,9 @@
 ._*
 .DS_Store
 .nextflow/*
+.nextflow.log/*
+.nextflow.log.*
+results*
+trace.txt
+.command.*
 .nextflow.log
-results/*

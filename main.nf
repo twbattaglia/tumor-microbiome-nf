@@ -18,32 +18,35 @@ workflow {
         exit 0
     }
 
-    // if (params.print) {
-    //     Channel
-    //         .fromPath(params.csv)
-    //         .splitCsv(header:true)
-    //         .map{ row-> tuple(row.sampleId, file(row.Tumor)) }
-    //         .println()
-    // } else {
-    //     if(params.blood) {
-    //         Channel
-    //             .fromPath(params.csv)
-    //             .splitCsv(header:true)
-    //             .map{ row-> tuple(row.sampleId, file(row.Normal)) }
-    //             .set { file_inputs }
-    //     } else {
-    //         Channel
-    //             .fromPath(params.csv)
-    //             .splitCsv(header:true)
-    //             .map{ row-> tuple(row.sampleId, file(row.Tumor)) }
-    //             .set { file_inputs }
-    //     }
-    // }
+    if (params.print) {
+        Channel
+            .fromPath(params.csv)
+            .splitCsv(header:true)
+            .map{ row-> tuple(row.sample_id, file(row.Tumor)) }
+            .println()
+    } else {
+        if(params.blood) {
+            Channel
+                .fromPath(params.csv)
+                .splitCsv(header:true)
+                .map{ row-> tuple(row.sample_id, file(row.Normal)) }
+                .set { file_inputs }
+        } else {
+            Channel
+                .fromPath(params.csv)
+                .splitCsv(header:true)
+                .map{ row-> tuple(row.sample_id, file(row.Tumor)) }
+                .set { file_inputs }
+        }
+    }
 
     // Parse CSV file of CRAM files locations
-    file_inputs = Channel.fromPath(params.csv)
-                          .splitCsv(header:true)
-                          .map { row -> tuple(row.sampleId, file(params.blood ? row.Normal : row.Tumor)) }
+    Channel
+        .fromPath(params.csv)
+        .splitCsv(header:true)
+        //.map { row -> tuple(row.sample_id, file(row.Tumor)) }
+        .map { row -> tuple(row.sample_id, file(params.blood ? row.Normal : row.Tumor)) }
+        .set { file_inputs }
 
     // Run the preprocess process
     preprocess(file_inputs)

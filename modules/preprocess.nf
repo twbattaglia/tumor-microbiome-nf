@@ -32,6 +32,11 @@ process preprocess {
 
     script:
     """
+    if [ -z "${sample_id}" ]; then
+        echo "sample_id is null" >&2
+        exit 1
+    fi
+    
     samtools view -f 12 -F 256 --output-fmt BAM  -o ${sample_id}.unmapped.bam ${reads}
     md5sum ${sample_id}.unmapped.bam > ${sample_id}.unmapped.bam.md5
     samtools index ${reads}
