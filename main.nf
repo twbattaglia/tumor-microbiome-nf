@@ -49,9 +49,20 @@ workflow {
         .set { file_inputs }
 
     // Run the preprocess process
-    preprocess(file_inputs)
+    // preprocess(file_inputs)
     // kraken2(preprocess.bam_fastq, params.krakenDB)
     // pathseq(preprocess.unmapped_bam, params.pathseqDB)
+
+    // Run the preprocess process
+    preprocess_out = preprocess(file_inputs) // This line captures the output from the preprocess module
+
+    // Run the kraken2 process using the appropriate outputs from preprocess
+    kraken2(
+        preprocess_out.bam_fastq,
+        file(params.krakenDB))
+
+    // Run the pathseq process using the unmapped BAM output from preprocess
+    // pathseq(preprocess_out.unmapped_bam, file(params.pathseqDB))
 }
 
 // Function to display the help message

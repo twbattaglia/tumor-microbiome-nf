@@ -7,3 +7,5 @@ results*
 trace.txt
 .command.*
 .nextflow.log
+microbe_test_results
+work
