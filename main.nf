@@ -41,12 +41,20 @@ workflow {
     }
 
     // Parse CSV file of CRAM files locations
-    Channel
-        .fromPath(params.csv)
-        .splitCsv(header:true)
-        //.map { row -> tuple(row.sample_id, file(row.Tumor)) }
-        .map { row -> tuple(row.sample_id, file(params.blood ? row.Normal : row.Tumor)) }
-        .set { file_inputs }
+    samples = Channel.fromPath('path/to/samplesheet_microbiome_test.csv')
+                     .splitCsv(header: true)
+                     .map { row -> tuple(row.sample_id, file(row.Tumor)) }
+                     .set { sample_channel }
+
+    sample_channel
+        .into { kraken2_input }
+
+    kraken2_input
+        .into { kraken2_output }
+
+    kraken2(kraken2_input)
+}
+    //.map { row -> tuple(row.sample_id, file(row.Tumor)) }
 
     // Run the preprocess process
     // preprocess(file_inputs)
