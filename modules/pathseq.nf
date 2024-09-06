@@ -14,9 +14,19 @@ process pathseq {
     when:
     !params.skip_pathseq
 
-    script:
+    stub:
     """
-    mkdir -p tmp/
-    gatk --java-options '-Xmx104G -XX:ParallelGCThreads=6' PathSeqPipelineSpark --input ${reads} --output ${sample_id}-pathseq.bam --scores-output ${sample_id}-scores.txt --filter-metrics ${sample_id}-metrics.txt --score-metrics ${sample_id}-score-metrics.txt --microbe-fasta ${index}/combined_refgenome.fasta --microbe-bwa-image ${index}/combined_refgenome.img --taxonomy-file ${index}/combined_refgenome.db --filter-bwa-image ${index}/hg19_noEBV/pathseq_noEBV/pathseq_host_hg19_noEBV.img --kmer-file ${index}/hg19_noEBV/pathseq_noEBV/pathseq_host_hg19_noEBV.bfi --quality-threshold ${params.phred_cutoff} --min-clipped-read-length ${params.min_clip_length} --bwa-score-threshold ${params.microbe_cutoff} --divide-by-genome-length ${params.normalize_abundance} --identity-margin ${params.identity_margin} --min-score-identity ${params.min_score_identity} --tmp-dir tmp/ -- --spark-runner LOCAL --spark-master local[*]
+    mkdir -p ${params.outdir}/${sample_id}/pathseq
+    touch ${sample_id}-pathseq.bam
+    touch ${sample_id}-scores.txt
+    touch ${sample_id}-metrics.txt
+    touch ${sample_id}-score-metrics.txt
+    touch tmp/
     """
+
+    // script:
+    // """
+    // mkdir -p tmp/
+    // gatk --java-options '-Xmx104G -XX:ParallelGCThreads=6' PathSeqPipelineSpark --input ${reads} --output ${sample_id}-pathseq.bam --scores-output ${sample_id}-scores.txt --filter-metrics ${sample_id}-metrics.txt --score-metrics ${sample_id}-score-metrics.txt --microbe-fasta ${index}/combined_refgenome.fasta --microbe-bwa-image ${index}/combined_refgenome.img --taxonomy-file ${index}/combined_refgenome.db --filter-bwa-image ${index}/hg19_noEBV/pathseq_noEBV/pathseq_host_hg19_noEBV.img --kmer-file ${index}/hg19_noEBV/pathseq_noEBV/pathseq_host_hg19_noEBV.bfi --quality-threshold ${params.phred_cutoff} --min-clipped-read-length ${params.min_clip_length} --bwa-score-threshold ${params.microbe_cutoff} --divide-by-genome-length ${params.normalize_abundance} --identity-margin ${params.identity_margin} --min-score-identity ${params.min_score_identity} --tmp-dir tmp/ -- --spark-runner LOCAL --spark-master local[*]
+    // """
 }
