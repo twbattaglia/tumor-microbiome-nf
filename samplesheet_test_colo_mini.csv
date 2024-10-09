@@ -1,0 +1,2 @@
+sample_id,Tumor,Normal
+COLO829,/home/rhassaine/colo_mini_data/COLO829T.bam,/home/rhassaine/colo_mini_data/COLO829R.bam

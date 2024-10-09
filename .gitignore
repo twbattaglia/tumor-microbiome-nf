@@ -10,4 +10,8 @@ trace.txt
 # microbe_test_results
 work
 microbe_resources
-
+report.html
+timeline.html
+*.bam*
+*.md5*
+*-flagstat.txt*
