@@ -3,7 +3,9 @@
 nextflow.enable.dsl=2
 
 // Load the modules
-include { preprocess } from './modules/preprocess.nf'
+include { checkInputType } from './modules/preprocess.nf'
+include { preprocess } from './modules/preprocess.nf' 
+// This format only includes the import of a single process from the module
 include { kraken2 } from './modules/kraken2.nf'
 include { pathseq } from './modules/pathseq.nf'
 
@@ -23,7 +25,7 @@ workflow {
             .fromPath(params.csv)
             .splitCsv(header:true)
             .view()
-            .map{ row-> tuple(row.sample_id, file(row.Tumor)) }
+            .map{ row-> tuple(row.sample_id, row.filetype, file(row.Tumor)) }
             // .collect()
             // .toList()
             .view()
@@ -35,17 +37,26 @@ workflow {
             Channel
                 .fromPath(params.csv)
                 .splitCsv(header:true)
-                .map{ row-> tuple(row.sample_id, file(row.Normal)) }
+                .map{ row-> tuple(row.sample_id, row.filetype, file(row.Normal)) }
                 .set { file_inputs }
         } else {
             Channel
                 .fromPath(params.csv)
                 .splitCsv(header:true)
-                .map{ row-> tuple(row.sample_id, file(row.Tumor)) }
+                .map{ row-> tuple(row.sample_id, row.filetype, file(row.Tumor)) }
                 .set { file_inputs }
         }
-}
-    preprocess(file_inputs)
+    }
+
+    // Run the checkInputType process
+    checkInputType(file_inputs)
+        .set { checked_input }
+
+    // Use the checked_input channel in the preprocess process
+    preprocess(checked_input)
+
+    // preprocess(file_inputs)
+    // This line is from before the checkInputType process was added
 }
 
 //     // Parse CSV file of CRAM files locations
