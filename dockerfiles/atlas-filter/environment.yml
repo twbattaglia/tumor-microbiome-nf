@@ -12,3 +12,5 @@ dependencies:
   - samtools=1.10
   - fastp=0.20.1
   - pyega3
+  - libarchive
+
