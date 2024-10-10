@@ -15,3 +15,5 @@ timeline.html
 *.bam*
 *.md5*
 *-flagstat.txt*
+samplesheet_CPCT_test.csv
+samplesheet_test_colo_mini.csv
