@@ -1,4 +1,7 @@
 process pathseq {
+
+    tag "${sample_id}"
+
     publishDir "${params.outdir}/${sample_id}/pathseq", pattern: '*.txt', mode: 'copy'
 
     input:

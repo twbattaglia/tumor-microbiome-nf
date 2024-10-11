@@ -1,4 +1,7 @@
 process kraken2 {
+
+    tag "${sample_id}"
+
     publishDir "${params.outdir}/${sample_id}/kraken2", mode: 'copy', pattern: "*.txt*"
 
     input:

@@ -3,8 +3,8 @@
 nextflow.enable.dsl=2
 
 // Load the modules
-include { checkInputType } from './modules/preprocess.nf'
-include { preprocess } from './modules/preprocess.nf' 
+include { checkInputType; preprocess } from './modules/preprocess.nf'
+// include { preprocess } from './modules/preprocess.nf' 
 // This format only includes the import of a single process from the module
 include { kraken2 } from './modules/kraken2.nf'
 include { pathseq } from './modules/pathseq.nf'
@@ -24,7 +24,7 @@ workflow {
         Channel
             .fromPath(params.csv)
             .splitCsv(header:true)
-            .view()
+            // .view()
             .map{ row-> tuple(row.sample_id, row.filetype, file(row.Tumor)) }
             // .collect()
             // .toList()
