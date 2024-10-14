@@ -73,16 +73,13 @@ process preprocess {
     # --threads 32 because I'm only working on a single sample right now
     fastqc -o . --format bam --threads 32 ${sample_id}.unmapped.bam
 
-    fastqc -o . --threads 32 ${sample_id}-R1.fq.gz ${sample_id}-R2.fq.gz
+    #fastqc -o . --threads 32 ${sample_id}-R1.fq.gz ${sample_id}-R2.fq.gz
 
 
     # Check FastQC results and determine if trimming is needed
-    fastqc_data="${sample_id}-R1_fastqc/fastqc_data.txt"
-    trim_needed=0
+    # fastqc_data="${sample_id}-R1_fastqc/fastqc_data.txt"
+    # trim_needed=0
 
-    # Convert the unmapped BAM file to FASTQ format using Picard
-    # if [ "${input_type}" == "bam"]; then
-    
     # picard -Xmx6G SamToFastq -I ${sample_id}.unmapped.bam F=${sample_id}_R1.fq.gz F2=${sample_id}_R2.fq.gz
     
     picard SamToFastq \
@@ -91,26 +88,36 @@ process preprocess {
         F2=${sample_id}-R2.fq.gz \
         # VALIDATION_STRINGENCY=LENIENT \
         # VERBOSITY=DEBUG
-    
-    #fi
 
     # Before trimming the reads, run FastQC on the unmapped reads (to assess whether trimming is necessary)
     # For the test CPCT sample, post-trimming, the outputted FASTQ files are empty (hence this check)
 
+    if [ -s ${sample_id}-R1.fq.gz ] && [ -s ${sample_id}-R2.fq.gz ]; then
+        echo "This is part of the testing: files are not empty, trimming not needed?"
+    else
+        echo "These files are empty, the pipeline will fail"
+    fi
 
-    # Tom's logic is that you can't know the quality of the unmapped reads (hence the unmapped bam step), therefore, 
+    # Tom's logic is that you can't know the quality of the unmapped reads (hence the fastqc on the unmapped bam step), therefore, 
     # fastqc should be performed on the unmapped reads before trimming. If trimming is needed, then fastqc the trimmed reads
 
     
     # Trim the reads using cutadapt
-    cutadapt -o ${sample_id}-trim-R1.fq.gz -p ${sample_id}-trim-R2.fq.gz -a AGATCGGAAGAGC --minimum-length ${params.min_length} --quality-cutoff ${params.min_quality} --cores 8 ${sample_id}_R1.fq.gz ${sample_id}_R2.fq.gz &> ${sample_id}-qc-report.txt
+    # cutadapt -o ${sample_id}-trim-R1.fq.gz -p ${sample_id}-trim-R2.fq.gz -a AGATCGGAAGAGC --minimum-length ${params.min_length} --quality-cutoff ${params.min_quality} --cores 8 ${sample_id}_R1.fq.gz ${sample_id}_R2.fq.gz &> ${sample_id}-qc-report.txt
     
     # Run FastQC on the trimmed reads
-    fastqc -o . --threads 32 ${sample_id}-trim-R1.fq.gz ${sample_id}-trim-R2.fq.gz # adjust threads once moving away from a single sample
+
+    # Adding some testing logic that if the trimmed files don't exist (because the triming was not needed), then don't run fastqc on them
+
+    if [ ! -s ${sample_id}-trim-R1.fq.gz ] && [ ! -s ${sample_id}-trim-R2.fq.gz ]; then
+        echo "Trimming was not needed, no need to run FastQC on the trimmed reads"
+    else
+        fastqc -o . --threads 32 ${sample_id}-trim-R1.fq.gz ${sample_id}-trim-R2.fq.gz
+    fi
+
+     # fastqc -o . --threads 32 ${sample_id}-trim-R1.fq.gz ${sample_id}-trim-R2.fq.gz # adjust threads once moving away from a single sample
     
     """
-
-
 }
 
     // stub:
