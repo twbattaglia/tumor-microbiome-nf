@@ -35,7 +35,7 @@ process preprocess {
     publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam'
     publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.md5'
     publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam.bai'
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_R{1,2}.fq.gz'
+    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*-R{1,2}.fq.gz'
 
     input:
     tuple val(sample_id), val(input_type), file(reads)
@@ -101,7 +101,8 @@ process preprocess {
     # Tom's logic is that you can't know the quality of the unmapped reads (hence the fastqc on the unmapped bam step), therefore, 
     # fastqc should be performed on the unmapped reads before trimming. If trimming is needed, then fastqc the trimmed reads
 
-    
+    # Insert the trimming step here (once moving away from a single sample for testing)
+
     # Trim the reads using cutadapt
     # cutadapt -o ${sample_id}-trim-R1.fq.gz -p ${sample_id}-trim-R2.fq.gz -a AGATCGGAAGAGC --minimum-length ${params.min_length} --quality-cutoff ${params.min_quality} --cores 8 ${sample_id}_R1.fq.gz ${sample_id}_R2.fq.gz &> ${sample_id}-qc-report.txt
     
