@@ -1,6 +1,6 @@
 ._*
 .DS_Store
-.nextflow
+.nextflow/*
 .nextflow.log/*
 .nextflow.log.*
 results*
