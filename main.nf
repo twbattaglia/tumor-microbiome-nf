@@ -49,6 +49,12 @@ workflow {
 
     // Use the checked_input channel in the preprocess process
     preprocess(checked_input)
+        .set { fq_files }
+
+    // Run the kraken2 process using the appropriate outputs (FASTQs
+    // from preprocess
+
+    // kraken2(fq_files, params.krakenDB)
 
     // preprocess(file_inputs)
     // This line is from before the checkInputType process was added

@@ -53,8 +53,8 @@ process preprocess {
 
     path("*.bam.bai"), emit: bam_index_files
     path("*_R?.fq.gz"), emit: fq_files
-    // path(".unmapped_fastqc.?"), emit: fastqc_files
-    // path(".unmapped_fastqc.{html,zip}"), emit: fastqc_files
+    path(".unmapped_fastqc.?"), emit: fastqc_files
+    path(".unmapped_fastqc.{html,zip}"), emit: fastqc_files
 
     script:
     """
