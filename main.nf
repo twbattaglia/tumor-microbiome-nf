@@ -9,11 +9,6 @@ include { checkInputType; preprocess } from './modules/preprocess.nf'
 include { kraken2 } from './modules/kraken2.nf'
 include { pathseq } from './modules/pathseq.nf'
 
-// Initialize the params.help if it's not defined
-params.help = params.help ?: false
-params.blood = params.blood ?: false
-params.print = params.print ?: true
-
 workflow {
     if (params.help) {
         helpMessage()
