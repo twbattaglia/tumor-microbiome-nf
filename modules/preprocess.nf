@@ -23,23 +23,23 @@ process preprocess {
 
     tag "${sample_id}"
 
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.txt'
-    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.{html}'
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.{zip}'
-    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*-trim-R{1,2}.fq.gz' #incorrect syntax ? files not captured
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*-trim-R?.fq.gz'
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.txt'
+    // // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.{html}'
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.{zip}'
+    // // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*-trim-R{1,2}.fq.gz' #incorrect syntax ? files not captured
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*-trim-R?.fq.gz'
     
-    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_fastqc.{html,zip}' # incorrect syntax ? files not captured
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_fastqc.?'
+    // // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_fastqc.{html,zip}' # incorrect syntax ? files not captured
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_fastqc.?'
     
-    // Add patterns to publish BAM, MD5, and index files - for testing purposes
-    // These files were already oresent in the work directory but not the output
-    // Testing the publishDir command for them
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam'
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.md5'
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam.bai'
-    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_R{1,2}.fq.gz'
-    publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_R?.fq.gz'
+    // // Add patterns to publish BAM, MD5, and index files - for testing purposes
+    // // These files were already oresent in the work directory but not the output
+    // // Testing the publishDir command for them
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam'
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.md5'
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*.bam.bai'
+    // // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_R{1,2}.fq.gz'
+    // publishDir "${params.outdir}/${sample_id}/quality_filter", mode: 'copy', pattern: '*_R?.fq.gz'
 
     input:
     tuple val(sample_id), val(input_type), file(reads)
@@ -53,8 +53,8 @@ process preprocess {
 
     path("*.bam.bai"), emit: bam_index_files
     path("*_R?.fq.gz"), emit: fq_files
-    path(".unmapped_fastqc.?"), emit: fastqc_files
-    path(".unmapped_fastqc.{html,zip}"), emit: fastqc_files
+    // path(".unmapped_fastqc.?"), emit: fastqc_files // are these even emited by the script ? (idem next line)
+    // path(".unmapped_fastqc.{html,zip}"), emit: fastqc_summary_files
 
     script:
     """
