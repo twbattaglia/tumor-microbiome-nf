@@ -52,7 +52,10 @@ process preprocess {
     path("${sample_id}-flagstat.txt"), emit: cram_flagstat
 
     path("*.bam.bai"), emit: bam_index_files
-    path("*_R?.fq.gz"), emit: fq_files
+    // path("*_R?.fq.gz"), emit: fq_files
+    tuple val(sample_id), path("${sample_id}_R1.fq.gz"), path("${sample_id}_R2.fq.gz"), emit: fq_files
+    //possible fix for the sample_id to be passed to the next process?
+
     // path(".unmapped_fastqc.?"), emit: fastqc_files // are these even emited by the script ? (idem next line)
     // path(".unmapped_fastqc.{html,zip}"), emit: fastqc_summary_files
 
@@ -89,16 +92,21 @@ process preprocess {
     # fastqc_data="${sample_id}_R1_fastqc/fastqc_data.txt"
     # trim_needed=0
 
-    picard -Xmx6G SamToFastq I=${sample_id}.unmapped.bam F=${sample_id}_R1.fq.gz F2=${sample_id}_R2.fq.gz # VALIDATION_STRINGENCY=LENIENT # VERBOSITY=DEBUG
+    echo "Processing Sample: ${sample_id}"
+
+    picard -Xmx6G SamToFastq I=${sample_id}.unmapped.bam F=${sample_id}_R1.fq.gz F2=${sample_id}_R2.fq.gz VALIDATION_STRINGENCY=LENIENT VERBOSITY=DEBUG
+
+    # echo "Fastqs generated from BAM: ${sample_id}_R1.fq.gz ${sample_id}_R2.fq.gz"
+    echo "Fastqs generated from BAM: F, F2"
 
     # Before trimming the reads, run FastQC on the unmapped reads (to assess whether trimming is necessary)
     # For the test CPCT sample, post-trimming, the outputted FASTQ files are empty (hence this check)
 
-    if [ -s ${sample_id}_R1.fq.gz ] && [ -s ${sample_id}_R2.fq.gz ]; then
-        echo "This is part of the testing: files are not empty, trimming not needed?"
-    else
-        echo "These files are empty, the pipeline will fail"
-    fi
+    # if [ -s ${sample_id}_R1.fq.gz ] && [ -s ${sample_id}_R2.fq.gz ]; then
+    #    echo "This is part of the testing: files are not empty, trimming not needed?"
+    # else
+    #    echo "These files are empty, the pipeline will fail"
+    # fi
 
     # Tom's logic is that you can't know the quality of the unmapped reads (hence the fastqc on the unmapped bam step), therefore, 
     # fastqc should be performed on the unmapped reads before trimming. If trimming is needed, then fastqc the trimmed reads
@@ -112,11 +120,11 @@ process preprocess {
 
     # Adding some testing logic that if the trimmed files don't exist (because the triming was not needed), then don't run fastqc on them
 
-    if [ ! -s ${sample_id}_trim_R1.fq.gz ] && [ ! -s ${sample_id}_trim_R2.fq.gz ]; then
+    # if [ ! -s ${sample_id}_trim_R1.fq.gz ] && [ ! -s ${sample_id}_trim_R2.fq.gz ]; then
         echo "Trimming was not needed, no need to run FastQC on the trimmed reads"
-    else
-        fastqc -o . --threads 32 ${sample_id}_trim_R1.fq.gz ${sample_id}_trim_R2.fq.gz
-    fi
+    # else
+    #    fastqc -o . --threads 32 ${sample_id}_trim_R1.fq.gz ${sample_id}_trim_R2.fq.gz
+    # fi
 
      # fastqc -o . --threads 32 ${sample_id}_trim_R1.fq.gz ${sample_id}_trim_R2.fq.gz # adjust threads once moving away from a single sample
     

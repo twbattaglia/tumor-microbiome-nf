@@ -53,8 +53,8 @@ workflow {
 
 
     // Run the kraken2 process using the appropriate outputs (FASTQs from preprocess)
-    // kraken2(fq_files, params.krakenDB)
-    //     .set { kraken2_output }
+    kraken2(fq_files, params.krakenDB)
+        .set { kraken2_output }
 
     // // Run the pathseq process using the appropriate outputs (FASTQs from preprocess)
     // pathseq(fq_files, params.pathseqDB)
